@@ -72,7 +72,10 @@ LOOP_SYSTEM = (
 # end_turn. A real model would produce these turns from the prompt; scripting them
 # keeps the demo deterministic and offline.
 SCRIPT = [
-    Response("tool_use", [tool_use_block("u1", "look_up_order", {"order_id": "12345"})]),
+    Response("tool_use", [
+        text_block("I'll look up the order to confirm it shipped before issuing the refund."),
+        tool_use_block("u1", "look_up_order", {"order_id": "12345"}),
+    ]),
     Response("tool_use", [
         text_block("The order shipped, so I'll process the refund."),
         tool_use_block("u2", "issue_refund", {"order_id": "12345"}),

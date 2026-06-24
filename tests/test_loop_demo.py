@@ -55,3 +55,12 @@ def test_live_tool_defs_are_well_formed():
         assert tool["name"]
         assert tool["description"]
         assert tool["input_schema"]["type"] == "object"
+
+
+def test_offline_loop_narrates_before_acting_like_the_live_model():
+    # The live model emits a preamble text block before its first tool call;
+    # the offline script mirrors that shape so rehearsal matches the live run.
+    first_assistant = next(m for m in run() if m["role"] == "assistant")
+    kinds = [block.get("type") for block in first_assistant["content"]]
+    assert "text" in kinds
+    assert kinds.index("text") < kinds.index("tool_use")

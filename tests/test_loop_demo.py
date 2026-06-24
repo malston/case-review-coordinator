@@ -1,6 +1,6 @@
 """The bare-loop demo iterates tool_use -> tool_result until end_turn."""
 
-from case_review.loop_demo import run
+from case_review.loop_demo import LOOP_TOOLS, TOOLS, run
 
 
 def _tool_uses(messages: list[dict]) -> list[str]:
@@ -40,3 +40,18 @@ def test_loop_terminates_on_end_turn_text():
     # Final turn is plain text (end_turn) -- no trailing tool_use.
     assert all(block.get("type") != "tool_use" for block in last["content"])
     assert any("Refund issued" in block.get("text", "") for block in last["content"])
+
+
+def test_live_tool_defs_match_the_executable_tools():
+    # The live model is told about LOOP_TOOLS; the loop dispatches via TOOLS.
+    # If they drift, the model can call a name that has no callable -> KeyError
+    # in run_agentic_loop. Keep the advertised set and the executable set equal.
+    advertised = {t["name"] for t in LOOP_TOOLS}
+    assert advertised == set(TOOLS)
+
+
+def test_live_tool_defs_are_well_formed():
+    for tool in LOOP_TOOLS:
+        assert tool["name"]
+        assert tool["description"]
+        assert tool["input_schema"]["type"] == "object"

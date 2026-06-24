@@ -7,7 +7,7 @@
 
 .DEFAULT_GOAL := help
 
-.PHONY: help install install-live test lint lint-fix check demo loop-demo lock clean
+.PHONY: help install install-live test lint lint-fix check demo loop-demo loop-demo-live lock clean
 
 help: ## Show this help
 	@echo "Case-Review Coordinator -- common tasks:"
@@ -49,6 +49,9 @@ demo: check-poetry ## Run the offline coordinator demo (happy / timeout / ambigu
 
 loop-demo: check-poetry ## Run the offline bare-loop demo (anatomy of the agent loop)
 	poetry run python -m case_review.loop_demo
+
+loop-demo-live: check-poetry ## Run the bare-loop demo against the real API (needs install-live + ANTHROPIC_API_KEY)
+	poetry run python -m case_review.loop_demo --live
 
 lock: check-poetry ## Regenerate poetry.lock after changing dependencies
 	poetry lock

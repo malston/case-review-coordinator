@@ -36,6 +36,38 @@ def issue_refund(tool_input: dict, _state: Any) -> dict:
 TOOLS = {"look_up_order": look_up_order, "issue_refund": issue_refund}
 
 
+# Tool definitions the live model reads (name + description + input schema). The
+# offline path scripts the model's turns, so it doesn't need these; the live path
+# (`--live`) sends them to the real model so it can choose. The advertised names
+# must match TOOLS, or the loop would dispatch a call it can't execute.
+LOOP_TOOLS = [
+    {
+        "name": "look_up_order",
+        "description": "Look up an order by its ID; returns the order's current status.",
+        "input_schema": {
+            "type": "object",
+            "properties": {"order_id": {"type": "string"}},
+            "required": ["order_id"],
+        },
+    },
+    {
+        "name": "issue_refund",
+        "description": "Issue a refund for an order. Look the order up first to confirm "
+        "it shipped before refunding.",
+        "input_schema": {
+            "type": "object",
+            "properties": {"order_id": {"type": "string"}},
+            "required": ["order_id"],
+        },
+    },
+]
+
+LOOP_SYSTEM = (
+    "You are an order-support agent. Use the tools to resolve the user's "
+    "request, then stop."
+)
+
+
 # The scripted model trajectory: tool_use -> (result) -> tool_use -> (result) ->
 # end_turn. A real model would produce these turns from the prompt; scripting them
 # keeps the demo deterministic and offline.
@@ -76,9 +108,40 @@ def run() -> list[dict]:
     )
 
 
+def run_live() -> list[dict]:
+    """Drive the same bare loop against the real API. Opt-in: needs the live extra
+    (`make install-live`) and ANTHROPIC_API_KEY. The model -- not a script --
+    decides to look the order up before refunding it."""
+    from case_review.live import ClaudeClient
+
+    client = ClaudeClient(system=LOOP_SYSTEM, tools=LOOP_TOOLS)
+    return run_agentic_loop(
+        client,
+        [{"role": "user", "content": "Look up order #12345 and refund it."}],
+        tools=TOOLS,
+        pre_hooks={},
+        state=None,
+    )
+
+
 def main() -> None:
-    print("=== anatomy of the loop (offline, scripted model) ===")
-    for message in run():
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Anatomy of the agent loop.")
+    parser.add_argument(
+        "--live",
+        action="store_true",
+        help="drive the loop against the real API (needs `make install-live` + ANTHROPIC_API_KEY)",
+    )
+    args = parser.parse_args()
+
+    if args.live:
+        print("=== anatomy of the loop (LIVE -- real model decides) ===")
+        transcript = run_live()
+    else:
+        print("=== anatomy of the loop (offline, scripted model) ===")
+        transcript = run()
+    for message in transcript:
         _print_turn(message)
     print("\n  stop_reason == 'end_turn' -> loop exits (no tool asked for -> done).")
 

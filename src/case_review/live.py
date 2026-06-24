@@ -105,21 +105,31 @@ def _first_json_object(text: str) -> str | None:
 
 
 class ClaudeClient:
-    """ModelClient backed by the Messages API -- drives the coordinator loop."""
+    """ModelClient backed by the Messages API. Defaults drive the coordinator loop;
+    pass `system` and `tools` to drive a different loop (e.g. the bare-loop demo)."""
 
-    def __init__(self, *, model: str = MODEL, max_tokens: int = 4096):
+    def __init__(
+        self,
+        *,
+        model: str = MODEL,
+        max_tokens: int = 4096,
+        system: str = COORDINATOR_SYSTEM,
+        tools: list[dict] = COORDINATOR_TOOLS,
+    ):
         import anthropic
 
         self._client = anthropic.Anthropic()
         self._model = model
         self._max_tokens = max_tokens
+        self._system = system
+        self._tools = tools
 
     def create(self, messages: list[dict]) -> Response:
         message = self._client.messages.create(
             model=self._model,
             max_tokens=self._max_tokens,
-            system=COORDINATOR_SYSTEM,
-            tools=COORDINATOR_TOOLS,
+            system=self._system,
+            tools=self._tools,
             thinking={"type": "adaptive"},
             messages=messages,
         )

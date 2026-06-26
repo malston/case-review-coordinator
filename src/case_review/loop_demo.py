@@ -8,8 +8,8 @@ a tool, the tool runs, the result is handed back, and it repeats until
 
 The coordinator demo (`python -m case_review.demo`) shows this same loop doing
 real case-review work; this strips everything away to show the loop's shape.
-A live variant would swap `ScriptedClient` for `ClaudeClient` (live.py); scripting
-the turns keeps this deterministic and credit-free.
+The offline path uses ScriptedClient to keep turns deterministic and credit-free.
+A live variant uses ClaudeClient (live.py) instead, with the same loop.
 """
 
 from typing import Any
@@ -85,6 +85,7 @@ SCRIPT = [
 
 
 def _print_turn(message: dict) -> None:
+    """Print a single turn of the loop in human-readable form."""
     role, content = message["role"], message["content"]
     if isinstance(content, str):
         print(f"  {role}: {content}")

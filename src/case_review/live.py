@@ -1,9 +1,10 @@
-"""Optional live path: drive the loop and the Document Reader against the real API.
+"""Production client bindings for the Messages API.
 
-Opt-in via `poetry install --with live` and an `ANTHROPIC_API_KEY`. The entire
-test suite and the offline demo run without any of this -- `StubDocumentReader`
-and `ScriptedClient` cover the deterministic seam. `anthropic` is imported lazily
-so `parse_claims` (the one piece with real logic) works without it.
+Provides ClaudeClient for the coordinator loop and ClaudeDocumentReader for
+isolated document analysis, both backed by the real API. Requires `poetry install
+--with live` and an `ANTHROPIC_API_KEY`. The entire test suite and offline demo
+run without this -- they use `StubDocumentReader` and `ScriptedClient`. The
+`anthropic` SDK is imported lazily so logic-only paths work without it.
 
 Model and request shape follow the current API: `claude-opus-4-8` with adaptive
 thinking. The Document Reader runs as a genuinely isolated subagent -- its own
@@ -113,16 +114,16 @@ class ClaudeClient:
         *,
         model: str = MODEL,
         max_tokens: int = 4096,
-        system: str = COORDINATOR_SYSTEM,
-        tools: list[dict] = COORDINATOR_TOOLS,
+        system: str | None = None,
+        tools: list[dict] | None = None,
     ):
         import anthropic
 
         self._client = anthropic.Anthropic()
         self._model = model
         self._max_tokens = max_tokens
-        self._system = system
-        self._tools = tools
+        self._system = system or COORDINATOR_SYSTEM
+        self._tools = tools or COORDINATOR_TOOLS
 
     def create(self, messages: list[dict]) -> Response:
         message = self._client.messages.create(

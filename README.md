@@ -18,8 +18,8 @@ Two linchpins, each a real passing test:
   is **surfaced with both attributed**; a temporal conflict (a later amendment) is
   **resolved by supersession with its provenance preserved**.
 
-- The design doc this implements: [`../deliverables/domain5-build-exercise.md`](../deliverables/domain5-build-exercise.md)
-- The exercise prompt: [`../.prompts/domain5-build-exercise.prompt.md`](../.prompts/domain5-build-exercise.prompt.md)
+- The design doc this implements: [`../deliverables/domain5-build-exercise.md`](./deliverables/domain5-build-exercise.md)
+- The exercise prompt: [`../.prompts/domain5-build-exercise.prompt.md`](./.prompts/domain5-build-exercise.prompt.md)
 
 ## Quick start
 

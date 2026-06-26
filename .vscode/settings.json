@@ -1,4 +1,3 @@
 {
-  "pylint.enabled": false,
-  "mypy-type-checker.ignorePatterns": ["**/*.py"]
+  "pylint.enabled": false
 }

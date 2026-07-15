@@ -1,7 +1,6 @@
-# Domain 5 -- Case-Review Coordinator
+# Case-Review Coordinator
 
-A runnable, test-driven implementation of the CCA Domain 5 build exercise. A
-coordinator assesses a long-running case (a contract plus its amendments) by
+A coordinator assesses a long-running case (a contract plus its amendments) by
 delegating to two isolated subagents -- a **Document Reader** and a **Records
 Service** -- and synthesizes one verdict. It maintains a persistent **case-facts
 block**, isolates each subagent's heavy reads in its own context window,
@@ -17,9 +16,6 @@ Two linchpins, each a real passing test:
 - **The conflict test.** A genuine contradiction (two sources, same effective date)
   is **surfaced with both attributed**; a temporal conflict (a later amendment) is
   **resolved by supersession with its provenance preserved**.
-
-- The design doc this implements: [`../deliverables/domain5-build-exercise.md`](./deliverables/domain5-build-exercise.md)
-- The exercise prompt: [`../.prompts/domain5-build-exercise.prompt.md`](./.prompts/domain5-build-exercise.prompt.md)
 
 ## Quick start
 
